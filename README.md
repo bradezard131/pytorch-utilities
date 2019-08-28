@@ -1,2 +1,9 @@
 # pytorch-utilities
-A bunch of extra bits and bobs not included in PyTorch or Torchvision
+This repo includes a variety of tools that are not a part of Pytorch or Torchvision, but are useful to me.
+
+## Optimisers
+ - RAdam [https://github.com/LiyuanLucasLiu/RAdam]
+
+## Datasets
+
+## Other
