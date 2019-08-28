@@ -12,6 +12,7 @@ else:
 from PIL import Image
 from torchvision.datasets.utils import download_url, check_integrity, verify_str_arg
 
+
 DATASET_YEAR_DICT = {
     '2012': {
         'trainval': {
@@ -143,8 +144,59 @@ class VOCDetection(VisionDataset):
         return voc_dict
 
 
-
 def download_extract(url, root, filename, md5):
     download_url(url, root, filename, md5)
     with tarfile.open(os.path.join(root, filename), "r") as tar:
         tar.extractall(path=root)
+
+
+def fetch_region_proposals(source_dir='./data/proposals/'):
+    region_proposals = {}
+    for file in ['voc_2007_train.mat', 'voc_2007_val.mat', 'voc_2007_test.mat']:
+        mat = io.loadmat(os.path.join(source_dir, file))
+        boxes = mat['boxes'][0] if isinstance(mat['boxes'], np.ndarray) else mat['boxes']
+
+        if file == 'voc_2007_test.mat':
+            images = [fid[0] for fid in mat['images']]
+        else:
+            images = mat['images'][0]
+
+        for file_id, rois in zip(images, boxes):
+            rois = (rois - 1).astype(float)[:,[1,0,3,2]]
+            region_proposals[file_id[0]] = rois
+    return region_proposals
+
+
+def extract_image_labels(target_dict, class_names):
+    objects = target_dict['annotation']['object']
+    if not isinstance(objects, list):
+        objects = [objects]
+
+    label = torch.zeros((len(class_names)-1,), dtype=torch.float)
+    for obj in objects:
+        label[class_names.index(obj['name'][0])] = 1.
+    return label.unsqueeze(0)
+
+
+def extract_box_labels(target_dict, class_names):
+    objects = target_dict['annotation']['object']
+    if not isinstance(objects, list):
+        objects = [objects]
+
+    rois, classes = [], []
+    for obj in objects:
+        roi = obj['bndbox']
+        roi = torch.tensor([float(roi['xmin'][0]),
+                            float(roi['ymin'][0]),
+                            float(roi['xmax'][0]),
+                            float(roi['ymax'][0])])
+        cls = class_names.index(obj['name'][0])
+
+        rois.append(roi)
+        classes.append(cls)
+
+    return torch.stack(rois), torch.tensor(classes, dtype=torch.long)
+
+
+def extract_file_id(target_dict):
+    return target_dict['annotation']['filename'][0][:-4]
