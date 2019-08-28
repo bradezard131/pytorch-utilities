@@ -8,4 +8,10 @@ This repo includes a variety of tools that are not a part of Pytorch or Torchvis
 ## Datasets
  - VOCDetection 2007/2012 **including *test* split**
 
-## Other
+## Metrics
+ - Mean Average Precision
+ - Class-wise Average Precision
+
+## Utilities
+ - Harmonic Mean
+ - Exponential Moving Average
