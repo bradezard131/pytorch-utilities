@@ -13,6 +13,9 @@ This repo includes a variety of tools that are not a part of Pytorch or Torchvis
 ## Metrics
  - Mean Average Precision
  - Class-wise Average Precision
+ 
+## Losses
+ - Focal Loss
 
 ## Utilities
  - Harmonic Mean
